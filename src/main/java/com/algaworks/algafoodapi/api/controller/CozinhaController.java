@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController                              // aceita json e xml em todos os metodos do controller
 @RequestMapping(value = "/cozinhas")//,produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE} )
@@ -29,13 +30,13 @@ public class CozinhaController {
     //aceita json e xml apenas nesse metodo
     @GetMapping//(produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
     public List<Cozinha> listar() {
-        return repository.listar();
+        return repository.findAll();
     }
 
     //quando for xml vai chamar esse
     @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
     public CozinhasXMLWrapper listarXml() {
-        return new CozinhasXMLWrapper(repository.listar());
+        return new CozinhasXMLWrapper(repository.findAll());
     }
 
 
@@ -43,9 +44,10 @@ public class CozinhaController {
     @GetMapping("/{cozinhaId}")
     public ResponseEntity<Cozinha> buscar(@PathVariable(name = "cozinhaId") Long id) {
 
-        Cozinha cozinha = repository.buscar(id);
-        if (cozinha != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(cozinha);
+        Optional<Cozinha> cozinha = repository.findById(id);
+
+        if (cozinha.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(cozinha.get());
         }
 
         return ResponseEntity.notFound().build();
@@ -53,7 +55,7 @@ public class CozinhaController {
 
     @PostMapping
     public ResponseEntity<Cozinha> salvar(@RequestBody Cozinha cozinha) {
-        if (repository.buscarPorNome(cozinha.getNome()) == null) {
+        if (repository.findByNome(cozinha.getNome()) == null) {
 
             cozinha = cadastroCozinhaService.salvar(cozinha);
             return ResponseEntity.status(HttpStatus.CREATED).body(cozinha);
@@ -67,11 +69,11 @@ public class CozinhaController {
         //cozinha.setId(id);
         // return ResponseEntity.ok(repository.salvar(cozinha));
 
-        Cozinha cozinhaAtual = repository.buscar(id);
+        Optional<Cozinha> cozinhaAtual = repository.findById(id);
 
-        if (cozinhaAtual != null) {
-            BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
-            return ResponseEntity.ok(cadastroCozinhaService.salvar(cozinhaAtual));
+        if (cozinhaAtual.isPresent()) {
+            BeanUtils.copyProperties(cozinha, cozinhaAtual.get(), "id");
+            return ResponseEntity.ok(cadastroCozinhaService.salvar(cozinhaAtual.get()));
 
         }
 

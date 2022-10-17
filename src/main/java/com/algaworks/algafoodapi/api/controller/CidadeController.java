@@ -23,7 +23,7 @@ public class CidadeController {
 
     @GetMapping
     public ResponseEntity<List<Cidade>> todas() {
-        return ResponseEntity.ok(cidadeRepository.todas());
+        return ResponseEntity.ok(cidadeRepository.findAll());
     }
 
     @GetMapping("/{id}")

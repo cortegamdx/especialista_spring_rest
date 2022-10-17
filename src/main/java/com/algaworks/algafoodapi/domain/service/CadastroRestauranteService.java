@@ -20,42 +20,40 @@ public class CadastroRestauranteService {
     @Autowired
     private CozinhaRepository cozinhaRepository;
 
-    public Restaurante salvar(Restaurante restaurante){
+    public Restaurante salvar(Restaurante restaurante) {
         Long cozinhaId = restaurante.getCozinha().getId();
-        Cozinha cozinha = cozinhaRepository.buscar(cozinhaId);
 
-        if(cozinha == null){
-            throw  new EntidadeNaoEncontradaException(String.format("Não existe cadastro de cozinha com o codigo %d.",cozinhaId));
-        }
+        Cozinha cozinha = cozinhaRepository.findById(cozinhaId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Não existe cadastro de cozinha com o codigo %d.", cozinhaId)));
 
-        return  repository.salvar(restaurante);
+        return repository.save(restaurante);
     }
 
-    public Restaurante atualizar(Restaurante restaurante,Restaurante restauranteAtual){
+    public Restaurante atualizar(Restaurante restaurante, Restaurante restauranteAtual) {
 
 
         Long cozinhaId = restaurante.getCozinha().getId();
-        Cozinha cozinha = cozinhaRepository.buscar(cozinhaId);
+        Cozinha cozinha = cozinhaRepository.findById(cozinhaId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(
+                        String.format("Não existe cadastro de cozinha com o codigo %d.", cozinhaId)));
 
-        if(cozinha == null){
-            throw  new EntidadeNaoEncontradaException(String.format("Não existe cadastro de cozinha com o codigo %d.",cozinhaId));
+        if (cozinha == null) {
+            throw new EntidadeNaoEncontradaException(
+                    String.format("Não existe cadastro de cozinha com o codigo %d.", cozinhaId));
         }
-        BeanUtils.copyProperties(restaurante,restauranteAtual,"id");
-        restaurante = repository.salvar(restauranteAtual);
+        BeanUtils.copyProperties(restaurante, restauranteAtual, "id");
+        restaurante = repository.save(restauranteAtual);
 
         return restaurante;
     }
 
-    public List<Restaurante> todos(){
-        return repository.listar();
+    public List<Restaurante> todos() {
+        return repository.findAll();
     }
 
-    public Restaurante porId(Long id){
-        Restaurante restaurante = repository.buscar(id);
-
-        if(restaurante == null){
-            throw new EntidadeNaoEncontradaException("Restaurante não cadastrado");
-        }
+    public Restaurante porId(Long id) {
+        Restaurante restaurante = repository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante não cadastrado."));
 
         return restaurante;
     }

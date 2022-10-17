@@ -1,43 +1,27 @@
 package com.algaworks.algafoodapi.infrastructure.repository;
 
 import com.algaworks.algafoodapi.domain.model.Restaurante;
-import com.algaworks.algafoodapi.domain.repository.RestauranteRepository;
+import com.algaworks.algafoodapi.domain.repository.RestauranteRepositoryQueries;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public class RestauranteRepositoryImpl implements RestauranteRepository {
+public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
 
     @PersistenceContext
-    private EntityManager manager;
+    private EntityManager entityManager;
 
+    public List<Restaurante> find(String nome, BigDecimal taxaInicial, BigDecimal taxaFinal){
+        var jpql = "from Restaurante where nome like :nome and taxaFrete between :taxaInicial and  :taxaFinal" ;
 
-    @Override
-    public List<Restaurante> listar() {
-        TypedQuery<Restaurante> typeQuery = manager.createQuery("from Restaurante", Restaurante.class);
-        List<Restaurante> restaurantes = typeQuery.getResultList();
-        return restaurantes;
-    }
-
-    @Override
-    public Restaurante buscar(Long id) {
-        return  manager.find(Restaurante.class,id);
-    }
-
-    @Transactional
-    @Override
-    public Restaurante salvar(Restaurante restaurante) {
-        return manager.merge(restaurante);
-    }
-
-    @Override
-    public void remover(Restaurante restaurante) {
-        restaurante = this.buscar(restaurante.getId());
-        manager.remove(restaurante);
+        return entityManager.createQuery(jpql,Restaurante.class)
+                .setParameter("nome","%"+nome+"%")
+                .setParameter("taxaInicial",taxaInicial)
+                .setParameter("taxaFinal",taxaFinal)
+                .getResultList();
     }
 }

@@ -12,8 +12,10 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("restaurantes")
@@ -39,6 +41,13 @@ public class RestauranteController {
         }
     }
 
+    @GetMapping("por-taxa")
+    public List<Restaurante> buscarPorTaxa(String nome,BigDecimal taxaInicial,BigDecimal taxaFinal){
+
+
+        return repository.find(nome,taxaInicial,taxaFinal);
+    }
+
     @PostMapping
     public ResponseEntity<?> adicionar(@RequestBody Restaurante restaurante) {
         try {
@@ -53,14 +62,14 @@ public class RestauranteController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@RequestBody Restaurante restaurante, @PathVariable Long id) {
-        Restaurante restauranteAtual = repository.buscar(id);
+        Optional<Restaurante> restauranteAtual = repository.findById(id);
 
-        if (restauranteAtual == null) {
+        if (!restauranteAtual.isPresent()) {
             return ResponseEntity.notFound().build();
         }
 
         try {
-            restaurante = restauranteService.atualizar(restaurante, restauranteAtual);
+            restaurante = restauranteService.atualizar(restaurante, restauranteAtual.get());
             return ResponseEntity.ok().body(restaurante);
         } catch (EntidadeNaoEncontradaException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

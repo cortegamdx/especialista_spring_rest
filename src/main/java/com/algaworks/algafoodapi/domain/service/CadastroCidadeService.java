@@ -23,50 +23,50 @@ public class CadastroCidadeService {
     public Cidade adicionar(Cidade cidade) {
         Long estadoId = cidade.getEstado().getId();
 
-        try {
-            Estado estado = estadoRepository.buscar(estadoId);
 
-            return cidadeRepository.salvar(cidade);
-        } catch (NullPointerException | EntityNotFoundException e) {
-            throw new EntidadeNaoEncontradaException(String.format("Não existe um estado cadastrado com o codigo %d", estadoId));
-        }
+        estadoRepository.findById(estadoId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Não existe um estado cadastrado com o codigo %d", estadoId)));
+
+        cidade = cidadeRepository.save(cidade);
+
+        return cidade;
+
     }
 
     public Cidade atualizar(Cidade cidade, Long id) {
 
-        Cidade cidadeAtual = cidadeRepository.buscar(id);
+        Cidade cidadeAtual = cidadeRepository.findById(id)
+                .orElseThrow(
+                        () -> new EntidadeNaoEncontradaException(
+                                String.format("Não existe uma cidade cadastrada com o codigo %d.", id)));
+
         Long estadoId = cidade.getEstado().getId();
 
-        if (cidadeAtual == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Não existe uma cidade cadastrada com o codigo %d.", id));
-        }
 
-        Estado estado = estadoRepository.buscar(estadoId);
-        if (estado == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Não existe nenhum estado cadastrado com o codigo %d.", estadoId));
-        }
+
+        estadoRepository.findById(estadoId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Não existe um estado cadastrado com o codigo %d", estadoId)));
+
 
         BeanUtils.copyProperties(cidade, cidadeAtual, "id");
-        cidade = cidadeRepository.salvar(cidadeAtual);
+        cidade = cidadeRepository.save(cidadeAtual);
 
 
         return cidade;
     }
 
     public void remover(Long id) {
-        Cidade cidade = cidadeRepository.buscar(id);
-        if (cidade == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Não existe uma cidade cadastrada com o codigo %d.", id));
-        }
+        Cidade cidade = cidadeRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(
+                        String.format("Não existe uma cidade cadastrada com o codigo %d.", id)));
 
-        cidadeRepository.remover(cidade);
+        cidadeRepository.delete(cidade);
     }
 
-    public Cidade buscar(Long id){
-        Cidade cidade = cidadeRepository.buscar(id);
-        if(cidade == null){
-            throw new EntidadeNaoEncontradaException(String.format("Não existe uma cidade cadastrada com o codigo %d.", id));
-        }
+    public Cidade buscar(Long id) {
+        Cidade cidade = cidadeRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(
+                        String.format("Não existe uma cidade cadastrada com o codigo %d.", id)));
         return cidade;
     }
 }

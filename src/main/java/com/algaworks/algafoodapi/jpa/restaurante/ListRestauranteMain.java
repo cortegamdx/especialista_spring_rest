@@ -17,7 +17,7 @@ public class ListRestauranteMain {
 
         RestauranteRepository repository = springApplication.getBean(RestauranteRepository.class);
 
-        repository.listar().forEach(System.out::println);
+        repository.findAll().forEach(System.out::println);
 
     }
 }

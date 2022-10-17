@@ -14,6 +14,6 @@ public class ListFormaPagamento {
 
         FormaPagamentoRepository repository = context.getBean(FormaPagamentoRepository.class);
 
-        repository.listar().forEach(System.out::println);
+        repository.findAll().forEach(System.out::println);
     }
 }

@@ -21,6 +21,6 @@ public class CadastroRestaurante {
         restaurante.setNome("Padaria do ze");
         restaurante.setTaxaFrete(BigDecimal.valueOf(4.50));
 
-        repository.salvar(restaurante);
+        repository.save(restaurante);
     }
 }

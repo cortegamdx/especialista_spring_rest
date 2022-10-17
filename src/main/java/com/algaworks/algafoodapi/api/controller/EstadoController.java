@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/estados")
@@ -26,14 +27,19 @@ public class EstadoController {
 
 
     @GetMapping("/{id}")
-    public Estado buscar(@PathVariable Long id) {
-        return repository.buscar(id);
+    public ResponseEntity<Estado> buscar(@PathVariable Long id) {
+        Optional<Estado> estado = repository.findById(id);
+
+        if(estado.isPresent()){
+            return ResponseEntity.ok(estado.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
 
     @GetMapping
     public ResponseEntity<List<Estado>> todos(){
-        return  ResponseEntity.ok(repository.todas());
+        return  ResponseEntity.ok(repository.findAll());
     }
 
     @PostMapping
